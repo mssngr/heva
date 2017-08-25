@@ -4,15 +4,6 @@ import {compose, withState, lifecycle} from 'recompose'
 import Map from './components/Map'
 import unitTypes from './components/units'
 
-function isClickValid(x, y, team, clickState) {
-  const distance = clickState && Math.abs(team.units[clickState].x - x + team.units[clickState].y - y)
-  const stamina = clickState && team.units[clickState].stamina
-  const isDifferentTile = team.units[clickState].x !== x && team.units[clickState].y !== y
-  const hasEnoughStamina = distance <= stamina
-
-  return isDifferentTile && hasEnoughStamina
-}
-
 class App extends Component {
   handleClick = (x, y, clickedUnit) => {
     const {team1, team2, clickState, setTeam1, setTeam2, setClickState, whoseTurn, setWhoseTurn} = this.props
@@ -22,7 +13,7 @@ class App extends Component {
     if (clickState) {
       switch (teams[whoseTurn].id) {
         case team1.id: {
-          if (isClickValid(x, y, team1, clickState)) {
+          if (this.isClickValid(x, y, team1, clickState)) {
             setTeam1({
               ...team1,
               units: {
@@ -43,7 +34,7 @@ class App extends Component {
         }
 
         case team2.id: {
-          if (isClickValid(x, y, team2, clickState)) {
+          if (this.isClickValid(x, y, team2, clickState)) {
             setTeam2({
               ...team2,
               units: {
@@ -84,6 +75,16 @@ class App extends Component {
           break
       }
     }
+  }
+
+  isClickValid = (x, y, team, clickState) => {
+    const teams = [this.props.team1, this.props.team2]
+    const distance = clickState && Math.abs(team.units[clickState].x - x + team.units[clickState].y - y)
+    const stamina = clickState && team.units[clickState].stamina
+    const isDifferentTile = `${team.units[clickState].x}, ${team.units[clickState].y}` !== `${x}, ${y}`
+    const hasEnoughStamina = distance <= stamina
+
+    return isDifferentTile && hasEnoughStamina
   }
 
   render() {
